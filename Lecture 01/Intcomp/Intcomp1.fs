@@ -60,7 +60,6 @@ let rec eval e (env : (string * int) list) : int =
 let run e = eval e [];;
 let res = List.map run [e1;e2;e3;e4;e5;e7;e8;e11]  (* e6 and e8 has free variables. e10 gets rid of the x halfway through *)
 
-
 (* ---------------------------------------------------------------------- *)
 
 (* Closedness *)
