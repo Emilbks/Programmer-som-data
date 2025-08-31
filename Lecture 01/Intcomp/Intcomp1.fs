@@ -10,7 +10,7 @@ module Intcomp1
 type expr = 
   | CstI of int
   | Var of string
-  | Let of string * expr * expr
+  | Let of (string * expr) list * expr // changed (2.1)
   | Prim of string * expr * expr;;
 
 (* Some closed expressions: *)
@@ -36,6 +36,8 @@ let e8 = Let("z", Let("x", CstI 4, Prim("+", Var "x", CstI 5)), Prim("*", Var "z
 let e9 = Let("z", CstI 3, Let("y", Prim("+", Var "z", CstI 1), Prim("+", Var "x", Var "y")))
 let e10 = Let("z", Prim("+", Let("x", CstI 4, Prim("+", Var "x", CstI 5)), Var "x"), Prim("*", Var "z", CstI 2))
 
+let e11 = Let ([("x1", Prim("+", CstI 5, CstI 7)); ("x2", Prim("*", Var "x1", CstI 2))], Prim ("+", Var "x1", Var "x2"))
+
 (* ---------------------------------------------------------------------- *)
 
 (* Evaluation of expressions with variables and bindings *)
@@ -49,10 +51,18 @@ let rec eval e (env : (string * int) list) : int =
     match e with
     | CstI i            -> i
     | Var x             -> lookup env x 
-    | Let(x, erhs, ebody) -> 
-      let xval = eval erhs env
-      let env1 = (x, xval) :: env 
-      eval ebody env1
+    // Updated Let (2.1)
+    | Let(lst, ebody) -> 
+        let rec loop lst acc =
+            match lst with
+            | [] -> acc
+            | (x,erhs)::xs -> 
+                let xval = eval erhs (acc @ env)
+                loop xs ((x,xval)::acc)
+
+        let addEnv = loop lst []
+        let env1 = addEnv @ env 
+        eval ebody env1
     | Prim("+", e1, e2) -> eval e1 env + eval e2 env
     | Prim("*", e1, e2) -> eval e1 env * eval e2 env
     | Prim("-", e1, e2) -> eval e1 env - eval e2 env
@@ -60,7 +70,6 @@ let rec eval e (env : (string * int) list) : int =
 
 let run e = eval e [];;
 let res = List.map run [e1;e2;e3;e4;e5;e7]  (* e6 has free variables *)
-
 
 (* ---------------------------------------------------------------------- *)
 
