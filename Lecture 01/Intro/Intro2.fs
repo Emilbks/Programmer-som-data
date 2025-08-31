@@ -74,3 +74,53 @@ let eEqTruev = eval eEqTrue env
 let eEqFalsev = eval eEqFalse env
 let eIf11 = eval eIf env
 let eIf22 = eval eIf [("a", 0)]
+
+// Exerice 1.2.1
+type aexpr =
+  | CstI of int
+  | Var of string
+  | Add of aexpr * aexpr
+  | Sub of aexpr * aexpr
+  | Mul of aexpr * aexpr
+
+(*
+Exercise 1.2.2
+
+v - (w + z) = Sub (Var "v", Add (Var "w", Var "z"))
+
+2 * (v - (w + z) = Mul (CstI 2, Sub (Var "v", Add (Var "w", Var "z")))
+
+x + y + z + v = Add (Var "x", Add (Var "y", Add (Var "z", Var "v")))
+
+*)
+
+// Exercise 1.2.3
+let rec fmt (a: aexpr) : string =
+    match a with
+    | CstI i -> $"{i}"
+    | Var v -> $"{v}"
+    | Add (e1, e2) -> $"({fmt e1} + {fmt e2})"
+    | Sub (e1, e2) -> $"({fmt e1} - {fmt e2})"
+    | Mul (e1, e2) -> $"({fmt e1} * {fmt e2})"
+
+// Exercise 1.2.4
+let simplify (a: aexpr) : aexpr =
+    match a with
+    | Add (CstI 0, e) -> e
+    | Add (e, CstI 0) -> e
+    | Sub (e, CstI 0) -> e
+    | Mul (CstI 1, e) -> e
+    | Mul (e, CstI 1) -> e
+    | Mul (e, CstI 0) -> CstI 0
+    | Mul (CstI 0, e) -> CstI 0
+    | Sub (e1, e2) when e1 = e2 -> CstI 0
+    | _ -> a
+
+// Exercise 1.2.5
+let rec diff (a: aexpr) (var: string) : aexpr =
+    match a with
+    | CstI _ -> CstI 0
+    | Var x -> if x = var then CstI 1 else CstI 0
+    | Add (e1, e2) -> Add (diff e1 var, diff e2 var)
+    | Sub (e1, e2) -> Sub (diff e1 var, diff e2 var)
+    | Mul (e1, e2) -> Add(Mul(diff e1 var, e2), Mul(e1, diff e2 var))
