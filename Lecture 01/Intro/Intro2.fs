@@ -24,7 +24,7 @@ type expr =
   | CstI of int
   | Var of string
   | Prim of string * expr * expr
-  | If of expr * expr * expr
+  | If of expr * expr * expr // 1.1
 
 let e1 = CstI 17
 
@@ -32,6 +32,7 @@ let e2 = Prim("+", CstI 3, Var "a")
 
 let e3 = Prim("+", Prim("*", Var "b", CstI 9), Var "a")
 
+// 1.1
 let eMax = Prim("max", CstI 5, CstI 7)
 
 let eMin = Prim("min", Prim ("-", CstI 8, CstI 3), CstI 7)
@@ -49,6 +50,7 @@ let rec eval e (env : (string * int) list) : int =
     match e with
     | CstI i -> i
     | Var x -> lookup env x 
+    // 1.1
     | Prim (ope, e1, e2) ->
         let i1 = eval e1 env
         let i2 = eval e2 env
@@ -68,6 +70,8 @@ let e1v  = eval e1 env
 let e2v1 = eval e2 env
 let e2v2 = eval e2 [("a", 314)]
 let e3v  = eval e3 env
+
+// 1.1
 let eMaxv = eval eMax env
 let eMinv = eval eMin env
 let eEqTruev = eval eEqTrue env
@@ -104,17 +108,34 @@ let rec fmt (a: aexpr) : string =
     | Mul (e1, e2) -> $"({fmt e1} * {fmt e2})"
 
 // Exercise 1.2.4
-let simplify (a: aexpr) : aexpr =
+let rec simplify (a: aexpr) : aexpr =
     match a with
-    | Add (CstI 0, e) -> e
-    | Add (e, CstI 0) -> e
-    | Sub (e, CstI 0) -> e
-    | Mul (CstI 1, e) -> e
-    | Mul (e, CstI 1) -> e
-    | Mul (e, CstI 0) -> CstI 0
-    | Mul (CstI 0, e) -> CstI 0
-    | Sub (e1, e2) when e1 = e2 -> CstI 0
+    | Add (e1, e2) ->
+        let i1 = simplify e1
+        let i2 = simplify e2
+        match i1, i2 with
+        | CstI 0, _ -> i2
+        | _, CstI 0 -> i1
+        | _, _ -> a
+    | Sub (e1, e2) ->
+        let i1 = simplify e1
+        let i2 = simplify e2
+        match i1, i2 with
+        | _, _ when i1 = i2 -> CstI 0
+        | _, CstI 0 -> i1
+        | _, _ -> a
+    | Mul (e1, e2) ->
+        let i1 = simplify e1
+        let i2 = simplify e2
+        match i1, i2 with
+        | CstI 0, _ -> CstI 0
+        | _, CstI 0 -> CstI 0
+        | CstI 1, _ -> i2
+        | _, CstI 1 -> i1
+        | _, _ -> a
     | _ -> a
+
+let s1 = simplify (Mul (Add (CstI 1, CstI 0), (Add (Var "x", CstI 0))))
 
 // Exercise 1.2.5
 let rec diff (a: aexpr) (var: string) : aexpr =
