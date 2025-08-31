@@ -32,7 +32,12 @@ let e7 = Let([("z", CstI 3); ("y", Prim("+", Var "z", CstI 1))], Prim("+", Var "
 let e8 = Let([("z", Let([("x", CstI 4)], Prim("+", Var "x", CstI 5)))], Prim("*", Var "z", CstI 2))
 let e9 = Let([("z", CstI 3); ("y", Prim("+", Var "z", CstI 1))], Prim("+", Var "x", Var "y"))
 let e10 = Let([("z", Prim("+", Let([("x", CstI 4)], Prim("+", Var "x", CstI 5)), Var "x"))], Prim("*", Var "z", CstI 2))
+
+// 2.1
 let e11 = Let ([("x1", Prim("+", CstI 5, CstI 7)); ("x2", Prim("*", Var "x1", CstI 2))], Prim ("+", Var "x1", Var "x2"))
+
+// 2.6
+let e12 = Let ([("x", CstI 11)], Let([("x", CstI 22); ("y", Prim("+", Var "x", CstI 1))], Prim("+", Var "x", Var "y")))
 
 (* ---------------------------------------------------------------------- *)
 
@@ -47,11 +52,20 @@ let rec eval e (env : (string * int) list) : int =
     match e with
     | CstI i            -> i
     | Var x             -> lookup env x 
+    // 2.6
+    | Let (ls, e1) ->
+        let rec loop ls (calculated : (string * int) list) =
+            match ls with
+            | (x, e)::ls' -> loop ls' ((x, eval e env)::calculated)
+            | [] -> calculated
+        eval e1 (loop ls env)
+    (*
     // 2.1
     | Let(ls, e1) -> 
         match ls with
         | (x, e)::ls' -> eval (Let (ls', e1)) ((x, eval e env)::env)
         | [] -> eval e1 env
+    *)
     | Prim("+", e1, e2) -> eval e1 env + eval e2 env
     | Prim("*", e1, e2) -> eval e1 env * eval e2 env
     | Prim("-", e1, e2) -> eval e1 env - eval e2 env
