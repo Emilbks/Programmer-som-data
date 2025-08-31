@@ -247,9 +247,11 @@ let rec tcomp (e : expr) (cenv : string list) : texpr =
     match e with
     | CstI i -> TCstI i
     | Var x  -> TVar (getindex cenv x)
-    | Let(x, erhs, ebody) -> 
-      let cenv1 = x :: cenv 
-      TLet(tcomp erhs cenv, tcomp ebody cenv1)
+    // 2.3
+    | Let (ls, ebody) ->
+        match ls with
+        | (x, erhs)::ls' -> TLet(tcomp erhs cenv, tcomp (Let (ls', ebody)) (x::cenv))
+        | [] -> tcomp ebody cenv
     | Prim(ope, e1, e2) -> TPrim(ope, tcomp e1 cenv, tcomp e2 cenv);;
 
 (* Evaluation of target expressions with variable indexes.  The
