@@ -210,14 +210,17 @@ let rec freevars e : string list =
     match e with
     | CstI i -> []
     | Var x  -> [x]
-    | Let(x, erhs, ebody) -> 
-          union (freevars erhs, minus (freevars ebody, [x]))
+    // 2.2
+    | Let (ls, ebody) ->
+        match ls with
+        | (x, erhs)::ls' -> union (freevars erhs, minus (freevars (Let (ls', ebody)), [x]))
+        | [] -> freevars ebody
     | Prim(ope, e1, e2) -> union (freevars e1, freevars e2);;
 
 (* Alternative definition of closed *)
 
 let closed2 e = (freevars e = []);;
-let _ = List.map closed2 [e1;e2;e3;e4;e5;e6;e7;e8;e9;e10]
+let c2 = List.map closed2 [e1;e2;e3;e4;e5;e6;e7;e8;e9;e10]
 
 (* ---------------------------------------------------------------------- *)
 
