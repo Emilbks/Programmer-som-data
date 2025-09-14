@@ -1,2 +1,2 @@
 @echo off
-dotnet "C:\Users\adamk\Desktop\Programmer som data\Programmer-som-data\fsharp\FsLexYacc.11.3.0\build\fsyacc\net6.0\fsyacc.dll" %*
+dotnet ".\fsharp\FsLexYacc.11.3.0\build\fsyacc\net6.0\fsyacc.dll" %*
