@@ -61,7 +61,9 @@ type nonTerminalId =
     | NONTERM_Main
     | NONTERM_Expr
     | NONTERM_AtExpr
+    | NONTERM_Names
     | NONTERM_AppExpr
+    | NONTERM_FunExpr
     | NONTERM_Const
 /// This function maps tokens to integer indexes
 val tagOfToken: token -> int

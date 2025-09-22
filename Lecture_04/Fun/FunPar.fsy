@@ -12,7 +12,7 @@
 %token <bool> CSTBOOL
 
 %token ELSE END FALSE IF IN LET NOT THEN TRUE
-%token PLUS MINUS TIMES DIV MOD
+%token PLUS MINUS TIMES DIV MOD 
 %token EQ NE GT LT GE LE
 %token LPAR RPAR 
 %token EOF
@@ -27,6 +27,8 @@
 %start Main
 %type <Absyn.expr> Main Expr AtExpr Const
 %type <Absyn.expr> AppExpr
+%type <string list> Names /* 4.4 */
+%type <Absyn.expr list> FunExpr /* 4.4 */
 
 %%
 
@@ -56,14 +58,27 @@ AtExpr:
     Const                               { $1                     }
   | NAME                                { Var $1                 }
   | LET NAME EQ Expr IN Expr END        { Let($2, $4, $6)        }
-  | LET NAME NAME EQ Expr IN Expr END   { Letfun($2, $3, $5, $7) }
+  | LET NAME Names EQ Expr IN Expr END  { Letfun($2, $3, $5, $7) } /* 4.4 */
   | LPAR Expr RPAR                      { $2                     }
 ;
 
+/* 4.4 */
+Names:
+    NAME                                { [$1]                   }
+  | NAME Names                          { $1::$2                 }
+
+/* 4.4 */
 AppExpr:
-    AtExpr AtExpr                       { Call($1, $2)           }
-  | AppExpr AtExpr                      { Call($1, $2)           }
+    AtExpr FunExpr                       { Call($1, $2)           }
+  | AppExpr FunExpr                      { Call($1, $2)           }
 ;
+
+/* 4.4 */
+FunExpr:
+    AtExpr                              {[$1]}
+  | AtExpr FunExpr                      {$1::$2}
+;
+
 
 Const:
     CSTINT                              { CstI($1)               }
