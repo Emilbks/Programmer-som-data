@@ -96,6 +96,7 @@ let rec eval (e : tyexpr) (env : value env) : int =
         eval fBody fBodyEnv
       | _ -> failwith "eval Call: not a function"
     | Call _ -> failwith "illegal function in Call"
+      
 
 (* Type checking for the first-order functional language: *)
 
@@ -105,44 +106,53 @@ let rec typ (e : tyexpr) (env : typ env) : typ =
     | CstB b -> TypB
     | Var x  -> lookup env x 
     | Prim(ope, e1, e2) -> 
-      let t1 = typ e1 env
-      let t2 = typ e2 env
-      match (ope, t1, t2) with
-      | ("*", TypI, TypI) -> TypI
-      | ("+", TypI, TypI) -> TypI
-      | ("-", TypI, TypI) -> TypI
-      | ("=", TypI, TypI) -> TypB
-      | ("<", TypI, TypI) -> TypB
-      | ("&", TypB, TypB) -> TypB
-      | _   -> failwith "unknown op, or type error"
+        let t1 = typ e1 env
+        let t2 = typ e2 env
+        match (ope, t1, t2) with
+        | ("*", TypI, TypI) -> TypI
+        | ("+", TypI, TypI) -> TypI
+        | ("-", TypI, TypI) -> TypI
+        | ("=", TypI, TypI) -> TypB
+        | ("<", TypI, TypI) -> TypB
+        | ("&", TypB, TypB) -> TypB
+        | _   -> failwith "unknown op, or type error"
     | Let(x, eRhs, letBody) -> 
-      let xTyp = typ eRhs env
-      let letBodyEnv = (x, xTyp) :: env 
-      typ letBody letBodyEnv
+        let xTyp = typ eRhs env
+        let letBodyEnv = (x, xTyp) :: env 
+        typ letBody letBodyEnv
     | If(e1, e2, e3) -> 
-      match typ e1 env with
-      | TypB -> let t2 = typ e2 env
-                let t3 = typ e3 env
-                if t2 = t3 then t2
-                else failwith "If: branch types differ"
-      | _    -> failwith "If: condition not boolean"
+        match typ e1 env with
+        | TypB -> 
+            let t2 = typ e2 env
+            let t3 = typ e3 env
+            if t2 = t3 then t2
+            else failwith "If: branch types differ"
+        | _    -> failwith "If: condition not boolean"
     | Letfun(f, x, xTyp, fBody, rTyp, letBody) -> 
-      let fTyp = TypF(xTyp, rTyp) 
-      let fBodyEnv = (x, xTyp) :: (f, fTyp) :: env
-      let letBodyEnv = (f, fTyp) :: env
-      if typ fBody fBodyEnv = rTyp
-      then typ letBody letBodyEnv
-      else failwith ("Letfun: return type in " + f)
+        let fTyp = TypF(xTyp, rTyp) 
+        let fBodyEnv = (x, xTyp) :: (f, fTyp) :: env
+        let letBodyEnv = (f, fTyp) :: env
+        if typ fBody fBodyEnv = rTyp
+        then typ letBody letBodyEnv
+        else failwith ("Letfun: return type in " + f)
     | Call(Var f, eArg) -> 
-      match lookup env f with
-      | TypF(xTyp, rTyp) ->
-        if typ eArg env = xTyp then rTyp
-        else failwith "Call: wrong argument type"
-      | _ -> failwith "Call: unknown function"
+        match lookup env f with
+        | TypF(xTyp, rTyp) ->
+            if typ eArg env = xTyp then rTyp
+            else failwith "Call: wrong argument type"
+        | _ -> failwith "Call: unknown function"
     | Call(_, eArg) -> failwith "Call: illegal function in call"
+    | ListExpr (elems, tList) -> // Exercise 5.7
+        match tList with
+        | TypL elemType ->
+            elems |> List.iter (fun e -> 
+                let tElem = typ e env 
+                if tElem <> elemType then   
+                    failwith "ListExpr: element type mismatch")
+            tList
+        | _ -> failwith "ListExpr: not a list type"
 
 let typeCheck e = typ e [];;
-
 
 (* Examples of successful type checking *)
 
