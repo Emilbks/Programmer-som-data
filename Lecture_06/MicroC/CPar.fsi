@@ -2,6 +2,8 @@
 module CPar
 type token = 
   | EOF
+  | INC
+  | DEC
   | LPAR
   | RPAR
   | LBRACE
@@ -36,12 +38,15 @@ type token =
   | RETURN
   | VOID
   | WHILE
+  | FOR
   | CSTSTRING of (string)
   | NAME of (string)
   | CSTINT of (int)
   | CSTBOOL of (int)
 type tokenId = 
     | TOKEN_EOF
+    | TOKEN_INC
+    | TOKEN_DEC
     | TOKEN_LPAR
     | TOKEN_RPAR
     | TOKEN_LBRACE
@@ -76,6 +81,7 @@ type tokenId =
     | TOKEN_RETURN
     | TOKEN_VOID
     | TOKEN_WHILE
+    | TOKEN_FOR
     | TOKEN_CSTSTRING
     | TOKEN_NAME
     | TOKEN_CSTINT

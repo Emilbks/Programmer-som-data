@@ -9,10 +9,24 @@ void main () {
     arr[6] = 0;
 
     int freq[4];
+    freq[0] = 0;
+    freq[1] = 0;
+    freq[2] = 0;
+    freq[3] = 0;
 
     histogram(7, arr, 3, freq);
+
+    print freq[0];
+    print freq[1];
+    print freq[2];
+    print freq[3];
 }
 
 void histogram(int n, int ns[], int max, int freq[]) {
-
+    int i;
+    i = 0;
+    while (i < n) {
+        freq[ns[i]] = freq[ns[i]] + 1;
+        i = i + 1;
+    }
 }
