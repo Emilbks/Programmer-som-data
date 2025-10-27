@@ -1,0 +1,27 @@
+# A
+> open Absyn;;
+> open Fun;;
+> let res = run (Prim("+", CstI 5, CstI 7));;
+val res: int = 12
+
+# B
+> open Parse;;
+> let e1 = fromString "5+7";;
+val e1: Absyn.expr = Prim ("+", CstI 5, CstI 7)
+
+> let e2 = fromString "let y = 7 in y + 2 end";;
+val e2: Absyn.expr = Let ("y", CstI 7, Prim ("+", Var "y", CstI 2))
+
+> let e3 = fromString "let f x = x + 7 in f 2 end";;
+val e3: Absyn.expr = Letfun ("f", "x", Prim ("+", Var "x", CstI 7), Call (Var "f", CstI 2))
+
+# C
+> open ParseAndRun;;
+> run (fromString "5+7");;
+val it: int = 12
+
+> run (fromString "let y = 7 in y + 2 end");;
+val it: int = 9
+
+> run (fromString "let f x = x + 7 in f 2 end");;
+val it: int = 9

@@ -1,0 +1,59 @@
+# Compute Sum
+run (fromString "let f x = if x=1 then 1 else x + f(x-1) in f 1000 end");;
+val it: int = 500500
+
+# 3 raised to 8
+run (fromString "let root r = let exp x = if x = 0 then 1 else r * exp (x-1) in exp 8 end in root 3 end");;
+val it: int = 6561
+
+# Incrementing exponent
+run (fromString "
+let root r =
+  let exp x =
+    if x = 0 then 
+      1
+    else 
+      r * exp (x-1)
+  in
+    let sum n =
+      let inc i =
+        if i = n then
+          exp (i)
+        else
+          exp (i) + inc (i + 1)
+      in
+        inc 0
+      end
+    in
+      sum 11
+    end
+  end
+in 
+  root 3
+end
+");;
+val it: int = 265720
+
+# Incrementing root
+run (fromString "
+let root r =
+    let exp x =
+        if x = 0 then 
+            1
+        else 
+            r * exp (x-1)
+    in
+        exp 8
+    end
+in    
+    let inc i =
+        if i = 1 then
+            1
+        else 
+            root (i) + inc (i - 1)
+    in
+        inc 10
+    end
+end
+");;
+val it: int = 167731333
