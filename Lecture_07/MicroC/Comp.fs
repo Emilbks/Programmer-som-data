@@ -128,6 +128,8 @@ let rec cStmt stmt (varEnv : varEnv) (funEnv : funEnv) : instr list =
       let labtest  = newLabel()
       [GOTO labtest; Label labbegin] @ cStmt body varEnv funEnv
       @ [Label labtest] @ cExpr e varEnv funEnv @ [IFNZRO labbegin]
+    //| Switch (e, lst) ->
+        // ...
     | Expr e -> 
       cExpr e varEnv funEnv @ [INCSP -1]  (* Remove result of expression from stack, as this is a statement *)
     | Block stmts -> 
@@ -221,6 +223,18 @@ and cExpr (e : expr) (varEnv : varEnv) (funEnv : funEnv) : instr list =
         [CSTI 1] @
         [SUB] @
         [STI]
+    // 8.5
+    | Cond (e1, e2, e3) ->
+        let label_false = newLabel()
+        let label_end   = newLabel()
+
+        cExpr e1 varEnv funEnv @
+        [IFZERO label_false] @
+        cExpr e2 varEnv funEnv @
+        [GOTO label_end] @
+        [Label label_false] @
+        cExpr e3 varEnv funEnv @
+        [Label label_end]
 
 (* Generate code to access variable, dereference pointer or index array.
    The effect of the compiled code is to leave an lvalue on the stack.   *)

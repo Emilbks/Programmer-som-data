@@ -14,18 +14,20 @@ let nl = CstI 10
 %token <int> CSTINT CSTBOOL
 %token <string> CSTSTRING NAME
 
-%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE FOR /*7.3*/
+%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE FOR SWITCH CASE /* 7.3 & 8.6 */
 %token PLUS MINUS TIMES DIV MOD
 %token EQ NE GT LT GE LE
 %token NOT SEQOR SEQAND
 %token LPAR RPAR LBRACE RBRACE LBRACK RBRACK SEMI COMMA ASSIGN AMP
 %token INC DEC  /*7.5*/
+%token QUESTION COLON /*8.5*/
 %token EOF
 
 %right ASSIGN             /* lowest precedence */
 %nonassoc PRINT
 %left SEQOR
 %left SEQAND
+%right QUESTION COLON /*8.5*/
 %left EQ NE 
 %left GT LT GE LE
 %left PLUS MINUS
@@ -106,6 +108,7 @@ StmtM:  /* No unbalanced if-else */
             Stmt (Expr $3);
             Stmt (While($5, Block [Stmt $9; Stmt (Expr $7)]))]
     } /*7.3*/
+  | SWITCH LPAR Expr RPAR LBRACE Cases RBRACE { Switch($3, $6) } /* 8.6 */
 ;
 
 StmtU:
@@ -139,6 +142,7 @@ ExprNotAccess:
   | Expr LE    Expr                     { Prim2("<=", $1, $3) }
   | Expr SEQAND Expr                    { Andalso($1, $3)     }
   | Expr SEQOR  Expr                    { Orelse($1, $3)      }
+  | Expr QUESTION Expr COLON Expr       { Cond($1, $3, $5)    } /*8.5*/
 ;
 
 AtExprNotAccess:
@@ -177,4 +181,19 @@ Const:
 Type:
     INT                                 { TypI     }
   | CHAR                                { TypC     }
+;
+/* 8.6 */
+Cases:
+    { [] }
+  | Cases1
+    { $1 }
+;
+
+Cases1:
+    Case                                { [$1] }
+  | Case Cases1                         { $1 :: $2 }
+;
+
+Case:
+    CASE Const COLON Block              { (Absyn.CstI $2, $4) }
 ;
