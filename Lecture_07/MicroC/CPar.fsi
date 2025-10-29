@@ -2,6 +2,8 @@
 module CPar
 type token = 
   | EOF
+  | QUESTION
+  | COLON
   | INC
   | DEC
   | LPAR
@@ -39,12 +41,16 @@ type token =
   | VOID
   | WHILE
   | FOR
+  | SWITCH
+  | CASE
   | CSTSTRING of (string)
   | NAME of (string)
   | CSTINT of (int)
   | CSTBOOL of (int)
 type tokenId = 
     | TOKEN_EOF
+    | TOKEN_QUESTION
+    | TOKEN_COLON
     | TOKEN_INC
     | TOKEN_DEC
     | TOKEN_LPAR
@@ -82,6 +88,8 @@ type tokenId =
     | TOKEN_VOID
     | TOKEN_WHILE
     | TOKEN_FOR
+    | TOKEN_SWITCH
+    | TOKEN_CASE
     | TOKEN_CSTSTRING
     | TOKEN_NAME
     | TOKEN_CSTINT
@@ -111,6 +119,8 @@ type nonTerminalId =
     | NONTERM_Exprs1
     | NONTERM_Const
     | NONTERM_Type
+    | NONTERM_Cases
+    | NONTERM_Case
 /// This function maps tokens to integer indexes
 val tagOfToken: token -> int
 
