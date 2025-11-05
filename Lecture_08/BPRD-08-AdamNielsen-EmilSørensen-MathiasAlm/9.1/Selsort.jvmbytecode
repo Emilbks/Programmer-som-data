@@ -1,0 +1,71 @@
+public static void SelectionSort(int[]);
+    descriptor: ([I)V
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=4, locals=4, args_size=1 // arr is local 0, i is local 1, least is local 2, j/tmp is local 3
+         0: iconst_0                     // Push 0
+         1: istore_1                     // Pop 0, store as local 1 (i = 0)
+         2: iload_1                      // Push i
+         3: aload_0                      // Push arr reference (local 0)
+         4: arraylength                  // Pop arr, push arr.length
+         5: if_icmpge     57             // Pop arr.length, pop i, if i >= length, jump to 57 (end method)
+         
+         // Outer Loop (for (int i = 0; i < arr.Length; i++))
+         8: iload_1                      // Push i (local 1)
+         9: istore_2                     // Pop i, store as local 2 (least = i)
+        10: iload_1                      // Push i
+        11: iconst_1                     // Push 1
+        12: iadd                         // Pop 1, pop i, push i + 1
+        13: istore_3                     // Pop result of add, store as local 3 (j = i + 1)
+
+        // Inner Loop (for (int j = i+1; j < arr.Length; j++))
+        14: iload_3                      // Push j (local 3)
+        15: aload_0                      // Push arr reference
+        16: arraylength                  // Pop arr, push arr.length
+        17: if_icmpge     37             // Pop arr.length, pop j, if j >= length, jump to 37 (end inner loop)
+        20: aload_0                      // Push arr reference
+        21: iload_3                      // Push j
+        22: iaload                       // Pop j, pop arr, push arr[j]
+        23: aload_0                      // Push arr reference
+        24: iload_2                      // Push least (local 2)
+        25: iaload                       // Pop least, pop arr, push arr[least]
+        26: if_icmpge     31             // Pop arr[least], pop arr[j], if arr[j] >= arr[least], jump to 31 (skip least = j)
+        
+        // least = j;
+        29: iload_3                      // Push j
+        30: istore_2                     // Pop j, store as local 2 (least = j)
+        
+        // j++
+        31: iinc          3, 1           // Increment local 3 by 1 (j++ or j = j + 1)
+        34: goto          14             // Jump back to inner loop condition (address 14)
+        // end inner loop
+        
+        // Swap: int tmp = arr[i]; arr[i] = arr[least]; arr[least] = tmp;
+        
+        // tmp = arr[i] (Local 3 is reused for tmp)
+        37: aload_0                      // Push arr reference
+        38: iload_1                      // Push i
+        39: iaload                       // Pop i, pop arr, push arr[i]
+        40: istore_3                     // Pop arr[i], store as local 3 (tmp = arr[i])
+        
+        // arr[i] = arr[least]
+        41: aload_0                      // Push arr reference
+        42: iload_1                      // Push i
+        43: aload_0                      // Push arr reference
+        44: iload_2                      // Push least
+        45: iaload                       // Pop least, pop arr, push arr[least]
+        46: iastore                      // Pop arr[least], pop i, pop arr (arr[i] = arr[least])
+        
+        // arr[least] = tmp
+        47: aload_0                      // Push arr reference
+        48: iload_2                      // Push least
+        49: iload_3                      // Push tmp
+        50: iastore                      // Pop tmp, pop least, pop arr (arr[least] = tmp)
+        
+        // i++
+        51: iinc          1, 1           // Increment local 1 by 1 (i++ or i = i + 1)
+        54: goto          2              // Jump back to outer loop condition (address 2)
+        // end outer loop
+        
+        57: return                       // Return from method
+      // ... (LineNumberTable and StackMapTable omitted for brevity)
