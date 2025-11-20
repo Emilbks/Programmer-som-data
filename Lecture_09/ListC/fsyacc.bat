@@ -1,0 +1,2 @@
+@echo off
+dotnet ".\..\..\fsharp\FsLexYacc.11.3.0\build\fsyacc\net6.0\fsyacc.dll" %*
